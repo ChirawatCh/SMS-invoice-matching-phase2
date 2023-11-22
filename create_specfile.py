@@ -1,4 +1,7 @@
 import os
+## How to use
+## pip install pyinstaller
+## pyinstaller generated_EXE.spec
 
 # Define the directory containing the Python scripts
 scripts_directory = 'scripts'
