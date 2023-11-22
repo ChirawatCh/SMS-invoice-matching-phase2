@@ -160,6 +160,12 @@ print("NO. of diff rows:", filtered_df.shape[0])
 # Merging dataframes and creating comparison columns
 df_merge_excel = pd.merge(df_BASE, df_CPFM, on=["PO", "PO"], how="outer", suffixes=("_BASE", "_CPFM"))
 
+df_merge_excel["INV.no Check"] = df_merge_excel["Invoice_No_BASE"] == df_merge_excel["Invoice_No_CPFM"]
+df_merge_excel["Inv. Date Check"] = (df_merge_excel["Invoice_Date_BASE"] == df_merge_excel["Invoice_Date_CPFM"])
+df_merge_excel["ExcludeVAT_diff"] = round(df_merge_excel["Exc_Vat"] - df_merge_excel["rSumNett"], 2)
+df_merge_excel["VAT_diff"] = round(df_merge_excel["Tax_BASE"] - df_merge_excel["Tax_CPFM"], 2)
+df_merge_excel["IncludeVAT_diff"] = round(df_merge_excel["Total_Amt_BASE"] - df_merge_excel["Total_Amt_CPFM"], 2)
+
 ## Create a new column with CPFT_Null or CPFM_Null depending on the values of rTax_amt_CPFT and rTax_amt_CPFM ##
 df_merge_excel['null_report'] = ''
 df_merge_excel.loc[df_merge_excel['Total_Amt_BASE'].isnull(), 'null_report'] = 'BASE_Null'
@@ -169,10 +175,9 @@ df_merge_excel.loc[df_merge_excel['Total_Amt_CPFM'].isnull(), 'null_report'] = '
 value_counts = df_merge_excel['null_report'].value_counts()
 
 ## Create a dataframe to store the counts ##
-counts_df = pd.DataFrame({'Type': ['BASE_Null', 'B2B_Null', "DIFF", 'Matching'],
+counts_df = pd.DataFrame({'Type': ['BASE_Null', 'B2B_Null', 'Matching'],
                           'Count': [value_counts.get('BASE_Null', 0), 
                                     value_counts.get('CPFM_Null', 0),
-                                    df_CPFM_diff.shape[0],
                                     value_counts.get('', 0)]})
 
 ## Add the sum of the "Count" column to the last row ##
