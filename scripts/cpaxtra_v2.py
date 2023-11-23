@@ -10,6 +10,7 @@ OUTPUT_EXCEL_PATH = r"outputs/reconciled_data_CPAxtra.xlsx"
 
 ######################################### Session 1 Data cleansing and reading ###############################################
 
+
 # Read data
 df_BASE = pd.read_excel(
     BASE_PATH,
@@ -19,13 +20,23 @@ df_BASE = pd.read_excel(
         "รหัสลูกค้า": str,
         "รหัส Store": str,
         "Branch": str,
+        " Tax Branch": str,
     },
     skiprows=2,
 )
 df_BASE = df_BASE[df_BASE["Branch"] != "0"]
 
+# Trim column names
+def trim_column_names(df):
+    df.columns = df.columns.str.strip()
+    return df
+
+df_BASE = trim_column_names(df_BASE)
+# print(df_BASE.columns)
+
 df_B2B = pd.read_csv(B2B_PATH, dtype={"rRef_doc_number": str, "rInput_doc_number": str, "rDocNumber": str}, skiprows=[0])
 df_B2B = df_B2B[df_B2B['rCV_name'].str.contains("ซีพี แอ็กซ์ตร้า")]
+
 
 
 # Rename columns and prepare data
@@ -60,7 +71,6 @@ def convert_date(date_str):
     date_obj = dt.strptime(date_str, "%d/%m/%Y") - relativedelta(years=543)
     return date_obj
 
-
 df_B2B["Invoice_Date"] = df_B2B["Invoice_Date"].apply(convert_date)
 df_BASE["Invoice_Date"] = pd.to_datetime(df_BASE.Invoice_Date, format="%d/%m/%Y")
 
@@ -74,9 +84,9 @@ df_BASE["Invoice_No"] = df_BASE["Invoice_No"].apply(
 df_BASE['Invoice_Date'] = pd.to_datetime(df_BASE['Invoice_Date'], errors='coerce')
 df_B2B['Invoice_Date'] = pd.to_datetime(df_B2B['Invoice_Date'], errors='coerce')
 
-# Apply formatting to valid timestamps, keeping NaT for invalid/missing values
-df_BASE['Invoice_Date'] = df_BASE['Invoice_Date'].apply(lambda x: x.strftime('%Y-%m-%d') if not pd.isnull(x) else pd.NaT)
-df_B2B['Invoice_Date'] = df_B2B['Invoice_Date'].apply(lambda x: x.strftime('%Y-%m-%d') if not pd.isnull(x) else pd.NaT)
+# Convert to datetime type into this format "01/11/2023"
+df_BASE[['Invoice_Date']] = df_BASE[['Invoice_Date']].apply(lambda col: col.dt.strftime('%d/%m/%Y') if col.dtype == 'datetime64[ns]' else col)
+df_B2B[['Invoice_Date']] = df_B2B[['Invoice_Date']].apply(lambda col: col.dt.strftime('%d/%m/%Y') if col.dtype == 'datetime64[ns]' else col)
 
 # Check and remove some columns
 print("Vender columns name:")
@@ -85,10 +95,15 @@ print()
 print("B2B columns name:")
 print(df_B2B.columns)
 print()
+
 # Assuming df is your DataFrame and 'columns_to_remove' contains the names of columns you want to remove
 columns_to_remove = ['rDoc_type_name', 'rTrn', 'rTRN_name', 'rCVCode']  # Replace these with your column names
 # Remove multiple columns by names
 df_B2B.drop(columns=columns_to_remove, inplace=True)
+
+# Padding "Tax Branch" convert to strnumber
+df_BASE["Tax Branch"] = df_BASE["Tax Branch"].astype(str).str.zfill(5)
+df_BASE["Store_No"] = df_BASE["Store_No"].astype(str).str.zfill(5)
 
 ############################################# Session 2 CSV file ####################################################
 
@@ -102,6 +117,11 @@ df_B2B_diff["ExcludeVAT_diff"] = round(df_B2B_diff["Exc_Vat"] - df_B2B_diff["rSu
 df_B2B_diff["VAT_diff"] = round(df_B2B_diff["Tax_BASE"] - df_B2B_diff["Tax_B2B"], 2)
 df_B2B_diff["IncludeVAT_diff"] = round(df_B2B_diff["Total_Amt_BASE"] - df_B2B_diff["Total_Amt_B2B"], 2)
 
+# Round a specific column to 2 decimal points
+columns_to_round = ['Tax_BASE', 'Exc_Vat', 'Total_Amt_BASE', 'rSumNett', 'Tax_B2B', 'Total_Amt_B2B']
+for col in columns_to_round:
+    df_B2B_diff[col] = df_B2B_diff[col].round(2)
+
 # Filtered data
 df_B2B_diff = df_B2B_diff[
     ((df_B2B_diff["ExcludeVAT_diff"] != 0) & df_B2B_diff["ExcludeVAT_diff"].notnull())
@@ -110,21 +130,32 @@ df_B2B_diff = df_B2B_diff[
     | (df_B2B_diff["Inv. Date Check"] == False)
 ]
 
-df_B2B_diff.to_csv(OUTPUT_CSV_PATH, index=False, encoding='utf-8-sig')
+# df_B2B_diff.to_csv(OUTPUT_CSV_PATH, index=False, encoding='utf-8-sig')
 
 # Select columns
-cols = [
-    "Store_Name",
-    "Invoice_No",
+cols_to_export = [
+    "rDocNumber",
+    # "PO",
+    # "Invoice_No_BASE",
+    # "Invoice_No_CPFM",
+    # "INV.no Check",
+    # "Invoice_Date_BASE",
+    # "Invoice_Date_CPFM",
     "Inv. Date Check",
+    # 'Exc_Vat',
+    # 'rSumNett',
     "ExcludeVAT_diff",
+    # 'Tax_BASE',
+    # 'Tax_CPFM',
     "VAT_diff",
+    # 'Total_Amt_BASE',
+    # 'Total_Amt_CPFM',
     "IncludeVAT_diff",
 ]
-filtered_df = df_B2B_diff[cols]
+filtered_df = df_B2B_diff[cols_to_export]
 
 print(filtered_df)
-# filtered_df.to_html('cpaxtra/output/b2b_diff_CPAxtra.html')
+filtered_df.to_csv(OUTPUT_CSV_PATH, index=False, encoding='utf-8-sig')
 print("NO. of diff rows:", filtered_df.shape[0])
 
 ############################################# Session 3 Excel file ####################################################
@@ -138,6 +169,10 @@ df_merge_excel["ExcludeVAT_diff"] = round(df_merge_excel["Exc_Vat"] - df_merge_e
 df_merge_excel["VAT_diff"] = round(df_merge_excel["Tax_BASE"] - df_merge_excel["Tax_B2B"], 2)
 df_merge_excel["IncludeVAT_diff"] = round(df_merge_excel["Total_Amt_BASE"] - df_B2B_diff["Total_Amt_B2B"], 2)
 
+# Round a specific column to 2 decimal points
+columns_to_round = ['Tax_BASE', 'Exc_Vat', 'Total_Amt_BASE', 'rSumNett', 'Tax_B2B', 'Total_Amt_B2B']
+for col in columns_to_round:
+    df_B2B_diff[col] = df_B2B_diff[col].round(2)
 
 ## Create a new column with CPFT_Null or B2B_Null depending on the values of rTax_amt_CPFT and rTax_amt_B2B ##
 df_merge_excel['null_report'] = ''

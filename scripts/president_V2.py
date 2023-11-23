@@ -104,9 +104,9 @@ df_BASE["Invoice_Date"] = pd.to_datetime(df_BASE.Invoice_Date, format="%d/%m/%Y"
 df_BASE['Invoice_Date'] = pd.to_datetime(df_BASE['Invoice_Date'], errors='coerce')
 df_CPFM['Invoice_Date'] = pd.to_datetime(df_CPFM['Invoice_Date'], errors='coerce')
 
-# Apply formatting to valid timestamps, keeping NaT for invalid/missing values
-df_BASE['Invoice_Date'] = df_BASE['Invoice_Date'].apply(lambda x: x.strftime('%Y-%m-%d') if not pd.isnull(x) else pd.NaT)
-df_CPFM['Invoice_Date'] = df_CPFM['Invoice_Date'].apply(lambda x: x.strftime('%Y-%m-%d') if not pd.isnull(x) else pd.NaT)
+# Convert to datetime type into this format "01/11/2023"
+df_BASE[['Invoice_Date']] = df_BASE[['Invoice_Date']].apply(lambda col: col.dt.strftime('%d/%m/%Y') if col.dtype == 'datetime64[ns]' else col)
+df_CPFM[['Invoice_Date']] = df_CPFM[['Invoice_Date']].apply(lambda col: col.dt.strftime('%d/%m/%Y') if col.dtype == 'datetime64[ns]' else col)
 
 # Check and remove some columns
 print("Vender columns name:")
@@ -115,10 +115,19 @@ print()
 print("CPFM columns name:")
 print(df_CPFM.columns)
 print()
-# Assuming df is your DataFrame and 'columns_to_remove' contains the names of columns you want to remove
-columns_to_remove = ['rDoc_type_name', 'rTrn', 'rTRN_name', 'rCVCode']  # Replace these with your column names
-# Remove multiple columns by names
-df_CPFM.drop(columns=columns_to_remove, inplace=True)
+
+# Remove multiple columns from BASE
+base_columns_to_remove = ['Header', 'Code1', 'Code2', 'Code3', 
+                          'Name', 'Code4', 'Province', 'ConpanyCode', 
+                          'Code5', 'Code6']  
+df_BASE.drop(columns=base_columns_to_remove, inplace=True)
+# Remove multiple columns by CPFM
+cpfm_columns_to_remove = ['rDoc_type_name', 'rTrn', 'rTRN_name', 'rCVCode']  
+df_CPFM.drop(columns=cpfm_columns_to_remove, inplace=True)
+
+# Padding "Business Place" convert to strnumber
+df_BASE = df_BASE.rename(columns={'Code7': 'Business Place'})
+df_BASE["Business Place"] = df_BASE["Business Place"].astype(str).str.zfill(5)
 
 ############################################# Session 2 CSV file ####################################################
 
@@ -130,6 +139,11 @@ df_CPFM_diff['ExcludeVAT_diff'] = round(df_CPFM_diff['Exc_Vat'] - df_CPFM_diff['
 df_CPFM_diff['VAT_diff'] = round(df_CPFM_diff['Tax_BASE'] - df_CPFM_diff['Tax_CPFM'],2)
 df_CPFM_diff['IncludeVAT_diff'] = round(df_CPFM_diff['Total_Amt_BASE'] - df_CPFM_diff['Total_Amt_CPFM'],2)
 
+# Round a specific column to 2 decimal points
+columns_to_round = ['Tax_BASE', 'Exc_Vat', 'Total_Amt_BASE', 'rSumNett', 'Tax_CPFM', 'Total_Amt_CPFM']
+for col in columns_to_round:
+    df_CPFM_diff[col] = df_CPFM_diff[col].round(2)
+
 # Filtered data
 df_CPFM_diff = df_CPFM_diff[
     ((df_CPFM_diff["ExcludeVAT_diff"] != 0) & df_CPFM_diff["ExcludeVAT_diff"].notnull())
@@ -138,14 +152,17 @@ df_CPFM_diff = df_CPFM_diff[
     | (df_CPFM_diff["Inv. Date Check"] == False)
 ]
 
-df_CPFM_diff.to_csv(OUTPUT_CSV_PATH, index=False, encoding='utf-8-sig')
+# df_CPFM_diff.to_csv(OUTPUT_CSV_PATH, index=False, encoding='utf-8-sig')
 
 # Select columns
-cols = [
-    "Store_Name",
-    "Invoice_No",
-    "Invoice_Date_BASE",
-    "Invoice_Date_CPFM",
+cols_to_export = [
+    "rDocNumber",
+    # "PO",
+    # "Invoice_No_BASE",
+    # "Invoice_No_CPFM",
+    # "INV.no Check",
+    # "Invoice_Date_BASE",
+    # "Invoice_Date_CPFM",
     "Inv. Date Check",
     # 'Exc_Vat',
     # 'rSumNett',
@@ -157,10 +174,11 @@ cols = [
     # 'Total_Amt_CPFM',
     "IncludeVAT_diff",
 ]
-filtered_df = df_CPFM_diff[cols]
+filtered_df = df_CPFM_diff[cols_to_export]
 
 print(filtered_df)
 # filtered_df.to_html('president/output/b2b_diff_President.html')
+filtered_df.to_csv(OUTPUT_CSV_PATH, index=False, encoding='utf-8-sig')
 print("NO. of diff rows:", filtered_df.shape[0])
 
 ############################################# Session 3 Excel file ####################################################
@@ -171,6 +189,11 @@ df_merge_excel["Inv. Date Check"] = (df_merge_excel["Invoice_Date_BASE"] == df_m
 df_merge_excel['ExcludeVAT_diff'] = round(df_merge_excel['Exc_Vat'] - df_merge_excel['rSumNett'],2)
 df_merge_excel['VAT_diff'] = round(df_merge_excel['Tax_BASE'] - df_merge_excel['Tax_CPFM'],2)
 df_merge_excel['IncludeVAT_diff'] = round(df_merge_excel['Total_Amt_BASE'] - df_merge_excel['Total_Amt_CPFM'],2)
+
+# Round a specific column to 2 decimal points
+columns_to_round = ['Tax_BASE', 'Exc_Vat', 'Total_Amt_BASE', 'rSumNett', 'Tax_CPFM', 'Total_Amt_CPFM']
+for col in columns_to_round:
+    df_CPFM_diff[col] = df_CPFM_diff[col].round(2)
 
 ## Create a new column with CPFT_Null or CPFM_Null depending on the values of rTax_amt_CPFT and rTax_amt_CPFM ##
 df_merge_excel['null_report'] = ''

@@ -14,3 +14,6 @@ python scripts/president_V2.py
 
 # Run Python script thainamthip_V2.py
 python scripts/thainamthip_V2.py
+
+# Run Python script thainamthip_V2.py
+python scripts/concat_csv.py
