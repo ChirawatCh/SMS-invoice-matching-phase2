@@ -163,3 +163,8 @@ outputs.zip
 outputs/
 reconciled_data_*.xlsx
 concatenated_output.csv
+outputs/reconciled_data_CPAxtra.xlsx
+outputs/reconciled_data_CPRam.xlsx
+outputs/reconciled_data_PerfectCompanion.xlsx
+outputs/reconciled_data_President.xlsx
+outputs/reconciled_data_ThaiNamthip.xlsx
