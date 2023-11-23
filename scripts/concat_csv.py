@@ -24,15 +24,22 @@ vendor_mapping = {
 
 # Read each specific CSV file into a DataFrame and store them in a list
 dfs = []
+vendors_with_data = set()  # To track vendors with data
+
 for file in csv_files:
     file_path = os.path.join(folder_path, file)
     if os.path.exists(file_path):
         df = pd.read_csv(file_path, dtype={"rDocNumber": str})
         df["rDocNumber"] = df["rDocNumber"].astype(str).str.zfill(15)
-        # Add a 'vendors' column with the corresponding vendor name
-        df['vendors'] = vendor_mapping[file]  # Map file name to vendor name
-        dfs.append(df)
+        if not df.empty:  # Check if DataFrame is empty
+            vendors_with_data.add(vendor_mapping[file])
+            df['vendors'] = vendor_mapping[file]  # Map file name to vendor name
+            dfs.append(df)
+        else:
+            print()
+            print(f"File {file} is empty.")
     else:
+        print()
         print(f"File {file} not found.")
 
 # Concatenate all DataFrames in the list along rows (axis=0)
@@ -48,6 +55,11 @@ result_df.fillna('N/A', inplace=True)
 
 # Count number of rows for each vendor
 vendor_counts = result_df['vendors'].value_counts()
+
+# Include vendors with no data
+for vendor in vendor_mapping.values():
+    if vendor not in vendors_with_data:
+        vendor_counts[vendor] = 0
 
 # Print the number of rows for each vendor
 print()
