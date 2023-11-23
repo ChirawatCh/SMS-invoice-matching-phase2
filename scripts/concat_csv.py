@@ -43,6 +43,9 @@ desired_order = ['vendors', 'rDocNumber', 'INV.no Check', 'Inv. Date Check', 'Ex
 # Rearrange columns in the DataFrame
 result_df = result_df[desired_order]
 
+# Fill NaN values in the DataFrame with 'N/A'
+result_df.fillna('N/A', inplace=True)
+
 # Count number of rows for each vendor
 vendor_counts = result_df['vendors'].value_counts()
 
