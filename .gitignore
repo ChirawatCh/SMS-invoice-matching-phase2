@@ -164,3 +164,6 @@ outputs/
 
 scripts/build/
 scripts/dist/
+
+#Ignore all xlsx files
+*.xlsx
