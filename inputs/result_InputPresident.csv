@@ -1,4 +1,4 @@
-Blank,Header,Branch,InvoiceDate,InvoiceNo,Total,Vat,ExcVat,Code1,Code2,Code3,Name,Code4,Province,ConpanyCode,BranchName,Code5,Code6,Code7
+﻿Blank,Header,Branch,InvoiceDate,InvoiceNo,Total,Vat,ExcVat,Code1,Code2,Code3,Name,Code4,Province,ConpanyCode,BranchName,Code5,Code6,Code7
 ,H,4000,08/11/2023,2311BR0253,159.09,10.41,148.68,12763,7,719756,ชวัลวิทย์  ศรีสง่า,1105,สมุทรปราการ,1023700046,(บริษัท เอก-ชัยฯ ทิพวัลย์ (4000)),,N,"00078
 "
 ,H,4003,08/11/2023,23110I0379,104.13,6.81,97.32,12763,7,716772,ศราวุธ  กกแก้ว,1202,บางบัวทอง,1023700179,(บริษัท เอก-ชัยฯ พระปิ่น 3 (4003)),,N,"00006
