@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 # Paths
 BASE_PATH = r"inputs/CPAxtra Invoice.xlsx"
 B2B_PATH = r"inputs/B2B.csv"
-OUTPUT_CSV_PATH = r"outputs/b2b_diff_CPAxtra.csv"
+OUTPUT_CSV_PATH = r"outputs/cpfm_b2b_diff_CPAxtra.csv"
 OUTPUT_EXCEL_PATH = r"outputs/reconciled_data_CPAxtra.xlsx"
 
 ######################################### Session 1 Data cleansing and reading ###############################################
@@ -135,6 +135,7 @@ df_B2B_diff = df_B2B_diff[
 # Select columns
 cols_to_export = [
     "rDocNumber",
+    "rOperationCode",
     # "PO",
     # "Invoice_No_BASE",
     # "Invoice_No_CPFM",

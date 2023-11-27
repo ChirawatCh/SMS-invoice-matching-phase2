@@ -6,20 +6,20 @@ folder_path = 'outputs'
 
 # Define the specific CSV file names
 csv_files = [
-    'b2b_diff_CPAxtra.csv',
-    'cpfm_diff_CPRam.csv',
-    'cpfm_diff_PerfectCompanion.csv',
-    'cpfm_diff_President.csv',
-    'cpfm_diff_ThaiNamThip.csv'
+    'cpfm_b2b_diff_CPAxtra.csv',
+    'cpfm_b2b_diff_CPRam.csv',
+    'cpfm_b2b_diff_PerfectCompanion.csv',
+    'cpfm_b2b_diff_President.csv',
+    'cpfm_b2b_diff_ThaiNamThip.csv'
 ]
 
 # Mapping of file names to vendor names
 vendor_mapping = {
-    'b2b_diff_CPAxtra.csv': 'CP Axtra',
-    'cpfm_diff_CPRam.csv': 'CP Ram',
-    'cpfm_diff_PerfectCompanion.csv': 'Perfect Companion',
-    'cpfm_diff_President.csv': 'President',
-    'cpfm_diff_ThaiNamThip.csv': 'ThaiNamThip'
+    'cpfm_b2b_diff_CPAxtra.csv': 'CP Axtra',
+    'cpfm_b2b_diff_CPRam.csv': 'CP Ram',
+    'cpfm_b2b_diff_PerfectCompanion.csv': 'Perfect Companion',
+    'cpfm_b2b_diff_President.csv': 'President',
+    'cpfm_b2b_diff_ThaiNamThip.csv': 'ThaiNamThip'
 }
 
 # Read each specific CSV file into a DataFrame and store them in a list
@@ -46,7 +46,7 @@ for file in csv_files:
 result_df = pd.concat(dfs, ignore_index=True)
 
 # Assuming 'result_df' is your DataFrame and these are the columns in the desired order
-desired_order = ['vendors', 'rDocNumber', 'INV.no Check', 'Inv. Date Check', 'ExcludeVAT_diff', 'VAT_diff', 'IncludeVAT_diff']
+desired_order = ['vendors', 'rDocNumber', "rOperationCode", 'INV.no Check', 'Inv. Date Check', 'ExcludeVAT_diff', 'VAT_diff', 'IncludeVAT_diff']
 # Rearrange columns in the DataFrame
 result_df = result_df[desired_order]
 

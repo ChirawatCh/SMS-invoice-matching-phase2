@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 # File paths for input and output
 BASE_PATH = r"inputs/CPRam Invoice.xlsx"
 CPFM_PATH = r"inputs/CPFM.csv"
-OUTPUT_CSV_PATH = r"outputs/cpfm_diff_CPRam.csv"
+OUTPUT_CSV_PATH = r"outputs/cpfm_b2b_diff_CPRam.csv"
 OUTPUT_EXCEL_PATH = r"outputs/reconciled_data_CPRam.xlsx"
 
 ######################################### Session 1 Data cleansing and reading ###############################################
@@ -145,6 +145,7 @@ df_CPFM_diff = df_CPFM_diff[
 # Selecting and exporting specific columns to a CSV file
 cols_to_export = [
     "rDocNumber",
+    "rOperationCode",
     # "PO",
     # "Invoice_No_BASE",
     # "Invoice_No_CPFM",

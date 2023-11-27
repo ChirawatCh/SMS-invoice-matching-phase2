@@ -9,7 +9,7 @@ from dateutil.relativedelta import relativedelta
 TXT_PATH = r'inputs/*.TXT'
 BASE_PATH = r'inputs/result_InputPresident.csv'
 CPFM_PATH = r'inputs/CPFM.csv'
-OUTPUT_CSV_PATH = r"outputs/cpfm_diff_President.csv"
+OUTPUT_CSV_PATH = r"outputs/cpfm_b2b_diff_President.csv"
 OUTPUT_EXCEL_PATH = r"outputs/reconciled_data_President.xlsx"
 
 ######################################### Session 1 Data cleansing and reading ###############################################
@@ -157,6 +157,7 @@ df_CPFM_diff = df_CPFM_diff[
 # Select columns
 cols_to_export = [
     "rDocNumber",
+    "rOperationCode",
     # "PO",
     # "Invoice_No_BASE",
     # "Invoice_No_CPFM",

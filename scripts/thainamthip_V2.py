@@ -6,7 +6,7 @@ pd.set_option('display.precision', 2)
 # File paths for input and output
 BASE_PATH = r"inputs/ThaiNamthip Invoice.xlsx"
 CPFM_PATH = r"inputs/CPFM.csv"
-OUTPUT_CSV_PATH = r"outputs/cpfm_diff_ThaiNamThip.csv"
+OUTPUT_CSV_PATH = r"outputs/cpfm_b2b_diff_ThaiNamThip.csv"
 OUTPUT_EXCEL_PATH = r"outputs/reconciled_data_ThaiNamThip.xlsx"
 
 ######################################### Session 1 Data cleansing and reading ###############################################
@@ -140,6 +140,7 @@ df_CPFM_diff = df_CPFM_diff[
 # Select columns
 cols_to_export = [
     "rDocNumber",
+    "rOperationCode",
     # "PO",
     # "Invoice_No_BASE",
     # "Invoice_No_CPFM",
