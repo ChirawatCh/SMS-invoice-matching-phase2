@@ -14,7 +14,7 @@ OUTPUT_EXCEL_PATH = r"outputs/reconciled_data_ThaiNamThip.xlsx"
 df_BASE = pd.read_excel(
     BASE_PATH,
     converters={
-        "Branch account": str,
+        # "Branch account": str,
         "Store No.": str,
         "Reference": str,
         "Payment reference": str,
@@ -96,7 +96,7 @@ print(df_CPFM.columns)
 print()
 
 # Remove multiple columns from BASE
-base_columns_to_remove = ['Branch account', 'Format', 'Net due date']  
+base_columns_to_remove = ['Format', 'Net due date']  
 df_BASE.drop(columns=base_columns_to_remove, inplace=True)
 # Remove multiple columns by CPFM
 cpfm_columns_to_remove = ['rDoc_type_name', 'rTrn', 'rTRN_name', 'rCVCode']  

@@ -28,7 +28,7 @@ def parse_txt_file_and_save_to_csv(file_path, output_csv):
                 result.append(header_data)
 
     # Write the extracted header data to a CSV file
-    with open(output_csv, 'w', newline='') as csvfile:
+    with open(output_csv, 'w', newline='', encoding='utf-8-sig') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=column_headers)
         writer.writeheader()
         writer.writerows(result)
